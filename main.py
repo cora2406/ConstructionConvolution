@@ -13,8 +13,9 @@ License : GPL 3
 
 import numpy
 import sys
-import sys
-from PyQt5.QtWidgets import QDialog, QApplication, QPushButton, QVBoxLayout
+
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+from PyQt5.QtGui import QIcon
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -32,16 +33,29 @@ __email__ = "therria@stanford.edu"
 __status__ = "Prototype"
 
 
-class Window(QDialog):
-    def __init__(self, parent=None):
-        super(Window, self).__init__(parent)
-
+class App(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.title = 'PyQt5 simple window - pythonspot.com'
+        self.left = 50
+        self.top = 50
+        self.width = 1600
+        self.height = 900
+        self.initUI()
+     
+        
+    def initUI(self):
+        
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.show()
+        
         # a figure instance to plot on
-        self.figure = plt.figure()
+        self.figureX = plt.figure()
 
         # this is the Canvas Widget that displays the `figure`
         # it takes the `figure` instance as a parameter to __init__
-        self.canvas = FigureCanvas(self.figure)
+        self.canvas = FigureCanvas(self.figureX)
 
         # this is the Navigation widget
         # it takes the Canvas widget and a parent
@@ -64,10 +78,10 @@ class Window(QDialog):
         data = [random.random() for i in range(10)]
 
         # instead of ax.hold(False)
-        self.figure.clear()
+        self.figureX.clear()
 
         # create an axis
-        ax = self.figure.add_subplot(111)
+        ax = self.figureX.add_subplot(111)
 
         # discards the old graph
         # ax.hold(False) # deprecated, see above
@@ -81,8 +95,7 @@ class Window(QDialog):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    main = Window()
-    main.show()
+    ex = App()
 
     sys.exit(app.exec_())
     
