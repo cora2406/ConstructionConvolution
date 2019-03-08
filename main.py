@@ -11,10 +11,10 @@ convolution.
 License : GPL 3
 """
 
-import numpy
+import numpy as np
 import sys
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QGroupBox, QDialog, QVBoxLayout, QGridLayout
 from PyQt5.QtGui import QIcon
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -50,47 +50,59 @@ class App(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.show()
         
-        # a figure instance to plot on
+        # Figure and canvas instances - canvas takes the `figure` instance as a parameter to __init__
         self.figureX = plt.figure()
-
-        # this is the Canvas Widget that displays the `figure`
-        # it takes the `figure` instance as a parameter to __init__
-        self.canvas = FigureCanvas(self.figureX)
+        self.figureH = plt.figure()
+        self.canvasX = FigureCanvas(self.figureX)
+        self.canvasH = FigureCanvas(self.figureH)
 
         # this is the Navigation widget
         # it takes the Canvas widget and a parent
-        self.toolbar = NavigationToolbar(self.canvas, self)
+        # self.toolbarX = NavigationToolbar(self.canvasX, self)
 
+        #Button Widegets
         # Just some button connected to `plot` method
-        self.button = QPushButton('Plot')
-        self.button.clicked.connect(self.plot)
+        self.buttonX = QPushButton('Plot X function')
+        self.buttonX.clicked.connect(self.plotXfunction)
+        self.buttonH = QPushButton('Plot H function')
+        self.buttonH.clicked.connect(self.plotHfunction)
 
+        self.createGridLayout()
+
+        
+    def createGridLayout(self):
         # set the layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.toolbar)
-        layout.addWidget(self.canvas)
-        layout.addWidget(self.button)
+        self.horizontalGroupBox = QGroupBox("Grid")
+        layout = QGridLayout()
+        layout.setColumnStretch(0, 100)
+        layout.setColumnStretch(2, 100)
+        layout.addWidget(self.canvasX, 0, 0)
+        layout.addWidget(self.canvasH, 0, 2)
+        layout.addWidget(self.buttonX, 1,0)
+        layout.addWidget(self.buttonH, 1,2)
         self.setLayout(layout)
 
-    def plot(self):
-        ''' plot some random stuff '''
-        # random data
-        data = [random.random() for i in range(10)]
+    def plotXfunction(self):
 
-        # instead of ax.hold(False)
         self.figureX.clear()
-
-        # create an axis
         ax = self.figureX.add_subplot(111)
-
-        # discards the old graph
-        # ax.hold(False) # deprecated, see above
-
-        # plot data
-        ax.plot(data, '*-')
+        tdata = np.arange(0, 10, 0.1)
+        xdata = np.sin(tdata*np.pi)
+        ax.plot(tdata, xdata)
 
         # refresh canvas
-        self.canvas.draw()
+        self.canvasX.draw()
+        
+    def plotHfunction(self):
+
+        self.figureH.clear()
+        ax = self.figureH.add_subplot(111)
+        tdata = np.arange(0,10, 0.1)
+        hdata = np.exp(-tdata)
+        ax.plot(tdata, hdata)
+
+        # refresh canvas
+        self.canvasH.draw()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
