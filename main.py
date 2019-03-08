@@ -15,23 +15,12 @@ import numpy as np
 import sys
 
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QGroupBox, QDialog, QVBoxLayout, QGridLayout
-from PyQt5.QtGui import QIcon
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 
-import random
-
-__author__ = "Audrey Corbeil Therrien"
-__copyright__ = '2019, ConstructionConvolution'
-__credits__ = ["Audrey Corbeil Therrien"]
-__license__ = "GPL 3"
-__version__ = "0.0.1"
-__maintainer__ = "Audrey Corbeil Therrien"
-__email__ = "therria@stanford.edu"
-__status__ = "Prototype"
-
+from convolution import Convolution
 
 class App(QWidget):
     def __init__(self):
@@ -42,6 +31,7 @@ class App(QWidget):
         self.width = 1600
         self.height = 900
         self.initUI()
+        self.convolution = Convolution()
      
         
     def initUI(self):
@@ -86,9 +76,8 @@ class App(QWidget):
 
         self.figureX.clear()
         ax = self.figureX.add_subplot(111)
-        tdata = np.arange(0, 10, 0.1)
-        xdata = np.sin(tdata*np.pi)
-        ax.plot(tdata, xdata)
+        data = self.convolution.getXfunction()
+        ax.plot(data[0], data[1])
 
         # refresh canvas
         self.canvasX.draw()
