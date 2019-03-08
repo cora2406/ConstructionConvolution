@@ -40,6 +40,12 @@ class App(QWidget):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.show()
         
+        self.createCanvas()
+        self.createWidgets()
+
+        self.createGridLayout()
+
+    def createCanvas(self):
         # Figure and canvas instances - canvas takes the `figure` instance as a parameter to __init__
         self.figureX = plt.figure()
         self.figureH = plt.figure()
@@ -49,16 +55,17 @@ class App(QWidget):
         # this is the Navigation widget
         # it takes the Canvas widget and a parent
         # self.toolbarX = NavigationToolbar(self.canvasX, self)
-
+        
+    def createWidgets(self):
+        
         #Button Widegets
         # Just some button connected to `plot` method
         self.buttonX = QPushButton('Plot X function')
         self.buttonX.clicked.connect(self.plotXfunction)
         self.buttonH = QPushButton('Plot H function')
         self.buttonH.clicked.connect(self.plotHfunction)
-
-        self.createGridLayout()
-
+        
+        
         
     def createGridLayout(self):
         # set the layout
