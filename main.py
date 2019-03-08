@@ -32,7 +32,7 @@ class App(QWidget):
         self.height = 900
         self.initUI()
         self.convolution = Convolution()
-     
+        self.plotDefaults()
         
     def initUI(self):
         
@@ -44,13 +44,18 @@ class App(QWidget):
         self.createWidgets()
 
         self.createGridLayout()
+        
 
     def createCanvas(self):
         # Figure and canvas instances - canvas takes the `figure` instance as a parameter to __init__
         self.figureX = plt.figure()
         self.figureH = plt.figure()
+        self.figureRelative = plt.figure()
+        self.figureResult = plt.figure()
         self.canvasX = FigureCanvas(self.figureX)
         self.canvasH = FigureCanvas(self.figureH)
+        self.canvasRelative = FigureCanvas(self.figureRelative)
+        self.canvasResult  = FigureCanvas(self.figureResult )
 
         # this is the Navigation widget
         # it takes the Canvas widget and a parent
@@ -60,45 +65,39 @@ class App(QWidget):
         
         #Button Widegets
         # Just some button connected to `plot` method
-        self.buttonX = QPushButton('Plot X function')
-        self.buttonX.clicked.connect(self.plotXfunction)
-        self.buttonH = QPushButton('Plot H function')
-        self.buttonH.clicked.connect(self.plotHfunction)
-        
+        self.buttonUpdate = QPushButton('Update ALL')
+        self.buttonUpdate.clicked.connect(self.plotDefaults)
         
         
     def createGridLayout(self):
         # set the layout
         self.horizontalGroupBox = QGroupBox("Grid")
         layout = QGridLayout()
-        layout.setColumnStretch(0, 100)
-        layout.setColumnStretch(2, 100)
+        layout.setColumnStretch(1, 100)
+        layout.setColumnStretch(1, 100)
+        layout.setColumnStretch(2, 200)
         layout.addWidget(self.canvasX, 0, 0)
-        layout.addWidget(self.canvasH, 0, 2)
-        layout.addWidget(self.buttonX, 1,0)
-        layout.addWidget(self.buttonH, 1,2)
+        layout.addWidget(self.canvasH, 0, 1)
+        layout.addWidget(self.canvasRelative, 0, 2)
+        layout.addWidget(self.canvasResult, 2, 2)
+        layout.addWidget(self.buttonUpdate, 2,0)
         self.setLayout(layout)
 
-    def plotXfunction(self):
+    def plotDefaults(self):
 
         self.figureX.clear()
         ax = self.figureX.add_subplot(111)
         data = self.convolution.getXfunction()
         ax.plot(data[0], data[1])
 
-        # refresh canvas
         self.canvasX.draw()
-        
-    def plotHfunction(self):
 
         self.figureH.clear()
         ax = self.figureH.add_subplot(111)
-        tdata = np.arange(0,10, 0.1)
-        hdata = np.exp(-tdata)
-        ax.plot(tdata, hdata)
-
-        # refresh canvas
+        data = self.convolution.getHfunction()
+        ax.plot(data[0], data[1])
         self.canvasH.draw()
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

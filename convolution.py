@@ -32,3 +32,7 @@ class Convolution:
     def getXfunction(self):
         x = np.sin(self.range*np.pi)
         return [self.range, x]
+    
+    def getHfunction(self):
+        x = np.exp(-self.range)
+        return [self.range, x]
