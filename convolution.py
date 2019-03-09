@@ -30,9 +30,14 @@ class Convolution:
         self.range = np.arange(self.minrange, self.maxrange, self.step)
         
     def getXfunction(self):
-        x = np.sin(self.range*np.pi)
-        return [self.range, x]
+        self.x = np.sin(self.range*np.pi)
+        return [self.range, self.x]
     
     def getHfunction(self):
-        x = np.exp(-self.range)
-        return [self.range, x]
+        self.h = np.exp(-self.range)
+        return [self.range, self.h]
+    
+    def getConvolution(self):
+        self.result = np.convolve(self.x, self.h)
+        self.convolveRange = np.linspace(self.minrange, self.minrange+(self.result.size*self.step), num=self.result.size)
+        return [self.convolveRange, self.result]

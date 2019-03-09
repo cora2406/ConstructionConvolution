@@ -11,10 +11,9 @@ convolution.
 License : GPL 3
 """
 
-import numpy as np
 import sys
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QHBoxLayout, QGroupBox, QDialog, QVBoxLayout, QGridLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGroupBox, QGridLayout
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -25,7 +24,7 @@ from convolution import Convolution
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        self.title = 'PyQt5 simple window - pythonspot.com'
+        self.title = 'La construction de la convolution'
         self.left = 50
         self.top = 50
         self.width = 1600
@@ -52,10 +51,12 @@ class App(QWidget):
         self.figureH = plt.figure()
         self.figureRelative = plt.figure()
         self.figureResult = plt.figure()
+        self.figureProducts = plt.figure()
         self.canvasX = FigureCanvas(self.figureX)
         self.canvasH = FigureCanvas(self.figureH)
         self.canvasRelative = FigureCanvas(self.figureRelative)
         self.canvasResult  = FigureCanvas(self.figureResult )
+        self.canvasProducts  = FigureCanvas(self.figureProducts)
 
         # this is the Navigation widget
         # it takes the Canvas widget and a parent
@@ -65,7 +66,7 @@ class App(QWidget):
         
         #Button Widegets
         # Just some button connected to `plot` method
-        self.buttonUpdate = QPushButton('Update ALL')
+        self.buttonUpdate = QPushButton('Réinitialisation')
         self.buttonUpdate.clicked.connect(self.plotDefaults)
         
         
@@ -73,12 +74,13 @@ class App(QWidget):
         # set the layout
         self.horizontalGroupBox = QGroupBox("Grid")
         layout = QGridLayout()
+        layout.setColumnStretch(0, 100)
         layout.setColumnStretch(1, 100)
-        layout.setColumnStretch(1, 100)
-        layout.setColumnStretch(2, 200)
+        layout.setColumnStretch(2, 300)
         layout.addWidget(self.canvasX, 0, 0)
         layout.addWidget(self.canvasH, 0, 1)
-        layout.addWidget(self.canvasRelative, 0, 2)
+        layout.addWidget(self.canvasRelative, 1, 0, 1, 2)
+        layout.addWidget(self.canvasProducts, 0, 2, 2, 1)
         layout.addWidget(self.canvasResult, 2, 2)
         layout.addWidget(self.buttonUpdate, 2,0)
         self.setLayout(layout)
@@ -89,14 +91,32 @@ class App(QWidget):
         ax = self.figureX.add_subplot(111)
         data = self.convolution.getXfunction()
         ax.plot(data[0], data[1])
-
+        ax.set_title("x(t)")
         self.canvasX.draw()
 
         self.figureH.clear()
         ax = self.figureH.add_subplot(111)
         data = self.convolution.getHfunction()
         ax.plot(data[0], data[1])
+        ax.set_title("h(t)")
         self.canvasH.draw()
+        
+        self.figureRelative.clear()
+        ax = self.figureRelative.add_subplot(111)
+        ax.set_title("Positions relatives de x(t) et h(t)")
+        self.canvasRelative.draw()
+        
+        self.figureProducts.clear()
+        ax = self.figureProducts.add_subplot(111)
+        ax.set_title("Translation de h(t) en un point")
+        self.canvasProducts.draw()
+        
+        self.figureResult.clear()
+        ax = self.figureResult.add_subplot(111)
+        ax.set_title("Convolution x(t) et h(t)")
+        data = self.convolution.getConvolution()
+        ax.plot(data[0], data[1])
+        self.canvasResult.draw()
         
 
 if __name__ == '__main__':
