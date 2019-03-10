@@ -13,7 +13,8 @@ License : GPL 3
 
 import sys
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGroupBox, QGridLayout
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGroupBox, QGridLayout, QSlider, QLabel
+from PyQt5.QtCore import Qt
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -31,6 +32,7 @@ class App(QWidget):
         self.height = 900
         self.initUI()
         self.convolution = Convolution()
+        
         self.plotDefaults()
         
     def initUI(self):
@@ -64,10 +66,18 @@ class App(QWidget):
         
     def createWidgets(self):
         
-        #Button Widegets
-        # Just some button connected to `plot` method
-        self.buttonUpdate = QPushButton('Réinitialisation')
-        self.buttonUpdate.clicked.connect(self.plotDefaults)
+        #Button Widgets
+        self.buttonReset = QPushButton('Réinitialisation')
+        self.buttonReset.clicked.connect(self.plotDefaults)
+        self.buttonUpdate = QPushButton('Mettre à jour les graphiques')
+        self.buttonUpdate.clicked.connect(self.plotUpdate)
+        
+        self.sliderLabel = QLabel("Selection de tau")
+        self.sliderLabel.setAlignment(Qt.AlignCenter)
+        
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.valueChanged.connect(self.moveTau) 
+        self.slider.setTickPosition(QSlider.TicksBelow)
         
         
     def createGridLayout(self):
@@ -81,8 +91,11 @@ class App(QWidget):
         layout.addWidget(self.canvasH, 0, 1)
         layout.addWidget(self.canvasRelative, 1, 0, 1, 2)
         layout.addWidget(self.canvasProducts, 0, 2, 2, 1)
-        layout.addWidget(self.canvasResult, 2, 2)
-        layout.addWidget(self.buttonUpdate, 2,0)
+        layout.addWidget(self.canvasResult, 2, 2, 3, 1)
+        layout.addWidget(self.sliderLabel, 2, 0, 1, 2)
+        layout.addWidget(self.slider, 3, 0, 1, 2)
+        layout.addWidget(self.buttonReset, 4,0)
+        layout.addWidget(self.buttonUpdate, 4,1)
         self.setLayout(layout)
 
     def plotDefaults(self):
@@ -118,6 +131,15 @@ class App(QWidget):
         ax.plot(data[0], data[1])
         self.canvasResult.draw()
         
+        #self.slider.setTickPosition(0)
+        #self.slider.setTickInterval(10)
+        #self.slider.setSingleStep(1)
+        
+    def plotUpdate(self):
+        pass
+    
+    def moveTau(self):
+        pass
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
