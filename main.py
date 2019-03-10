@@ -32,6 +32,8 @@ class App(QWidget):
         self.width = 1600
         self.height = 900
         
+        self.sliderFactor = 10
+        
         self.convolution = Convolution()
         
         self.initUI()
@@ -146,10 +148,10 @@ class App(QWidget):
         layout.addWidget(self.tminHInput, 6,3)
         layout.addWidget(self.tmaxHInput, 7,3)
         
-        layout.addWidget(self.XFunctionInput, 8,2,1,2)
-        layout.addWidget(self.HFunctionInput, 9,2,1,2)
-        layout.addWidget(self.XFunctionLabel, 8,0,1,2)
-        layout.addWidget(self.HFunctionLabel, 9,0, 1,2 )
+        layout.addWidget(self.XFunctionInput, 8,1,1,3)
+        layout.addWidget(self.HFunctionInput, 9,1,1,3)
+        layout.addWidget(self.XFunctionLabel, 8,0,1,1)
+        layout.addWidget(self.HFunctionLabel, 9,0, 1,1)
         layout.addWidget(self.MessageLabel, 10,0, 1, 4)
         
         self.setLayout(layout)
@@ -204,9 +206,9 @@ class App(QWidget):
         self.updateSlider()
         
     def updateSlider(self):
-        self.slider.setMinimum(self.convolution.getMinRangeX())
-        self.slider.setMaximum(self.convolution.getMaxRangeX())
-        self.slider.setTickInterval(self.convolution.getStep())
+        self.slider.setMinimum(self.convolution.getMinRangeX()*self.sliderFactor)
+        self.slider.setMaximum(self.convolution.getMaxRangeX()*self.sliderFactor)
+        #self.slider.setTickInterval(self.convolution.getStep())
         self.slider.setSingleStep((self.convolution.getMaxRangeX()-self.convolution.getMinRangeX())/100)
         
     def plotUpdate(self):
@@ -267,7 +269,7 @@ class App(QWidget):
         self.updateSlider()
     
     def moveTau(self):
-        tau = self.slider.value()
+        tau = self.slider.value()/float(self.sliderFactor)
         self.convolution.setTau(tau)
         self.plotUpdate()
 
