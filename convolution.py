@@ -26,8 +26,18 @@ class Convolution:
     def __init__(self):
         self.minrange = 0
         self.maxrange = 10
-        self.step = 0.01
-        self.range = np.arange(self.minrange, self.maxrange, self.step)
+        self.points = 1000
+        self.step = (self.maxrange - self.minrange)/self.points
+        self.range = np.linspace(self.minrange, self.maxrange, self.points)
+        
+    def getMinRange(self):
+        return self.minrange
+    
+    def getMaxRange(self):
+        return self.maxrange
+    
+    def getStep(self):
+        return self.step
         
     def getXfunction(self):
         self.x = np.sin(self.range*np.pi)
@@ -41,3 +51,17 @@ class Convolution:
         self.result = np.convolve(self.x, self.h)
         self.convolveRange = np.linspace(self.minrange, self.minrange+(self.result.size*self.step), num=self.result.size)
         return [self.convolveRange, self.result]
+
+
+    def setMinRange(self, newmin):
+        self.minrange = newmin
+        self.range = np.linspace(self.minrange, self.maxrange, self.points)
+    
+    def setMaxRange(self, newmax):
+        self.maxrange = newmax
+        self.range = np.linspace(self.minrange, self.maxrange, self.points)
+        
+    def setRange(self, newmin, newmax):
+        self.minrange = newmin
+        self.maxrange = newmax
+        self.range = np.linspace(self.minrange, self.maxrange, self.points)

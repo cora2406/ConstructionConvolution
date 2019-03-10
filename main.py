@@ -15,6 +15,7 @@ import sys
 
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGroupBox, QGridLayout, QSlider, QLabel, QLineEdit
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QDoubleValidator
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -30,8 +31,10 @@ class App(QWidget):
         self.top = 50
         self.width = 1600
         self.height = 900
-        self.initUI()
+        
         self.convolution = Convolution()
+        
+        self.initUI()
         
         self.plotDefaults()
         
@@ -93,7 +96,13 @@ class App(QWidget):
         self.slider.setTickPosition(QSlider.TicksBelow)
         
         self.tminInput = QLineEdit()
+        self.tminInput.setValidator(QDoubleValidator())
+        self.tminInput.textChanged.connect(self.updateMinRange)
+        
         self.tmaxInput = QLineEdit()
+        self.tmaxInput.setValidator(QDoubleValidator())
+        self.tmaxInput.textChanged.connect(self.updateMaxRange)
+        
         self.XFunctionInput = QLineEdit()
         self.HFunctionInput = QLineEdit()
         
@@ -127,6 +136,12 @@ class App(QWidget):
         self.setLayout(layout)
 
     def plotDefaults(self):
+        
+        self.convolution.setRange(0, 10)
+        self.tminInput.clear()
+        self.tmaxInput.clear()
+        self.XFunctionInput.clear()
+        self.HFunctionInput.clear()
 
         self.figureX.clear()
         ax = self.figureX.add_subplot(111)
@@ -159,12 +174,49 @@ class App(QWidget):
         ax.plot(data[0], data[1])
         self.canvasResult.draw()
         
-        #self.slider.setTickPosition(0)
-        #self.slider.setTickInterval(10)
-        #self.slider.setSingleStep(1)
+        self.slider.setTickPosition(self.convolution.getMinRange())
+        self.slider.setTickInterval(self.convolution.getStep())
+        self.slider.setSingleStep((self.convolution.getMaxRange()-self.convolution.getMinRange())/100)
         
     def plotUpdate(self):
-        pass
+        self.figureX.clear()
+        ax = self.figureX.add_subplot(111)
+        data = self.convolution.getXfunction()
+        ax.plot(data[0], data[1])
+        ax.set_title("x(t)")
+        self.canvasX.draw()
+
+        self.figureH.clear()
+        ax = self.figureH.add_subplot(111)
+        data = self.convolution.getHfunction()
+        ax.plot(data[0], data[1])
+        ax.set_title("h(t)")
+        self.canvasH.draw()
+        
+        self.figureRelative.clear()
+        ax = self.figureRelative.add_subplot(111)
+        ax.set_title("Positions relatives de x(t) et h(t)")
+        self.canvasRelative.draw()
+        
+        self.figureProducts.clear()
+        ax = self.figureProducts.add_subplot(111)
+        ax.set_title("Translation de h(t) en un point")
+        self.canvasProducts.draw()
+        
+        self.figureResult.clear()
+        ax = self.figureResult.add_subplot(111)
+        ax.set_title("Convolution x(t) et h(t)")
+        data = self.convolution.getConvolution()
+        ax.plot(data[0], data[1])
+        self.canvasResult.draw()
+    
+    def updateMinRange(self, minvalue):
+        self.convolution.setMinRange(float(minvalue))
+        self.plotUpdate()
+        
+    def updateMaxRange(self, maxvalue):
+        self.convolution.setMaxRange(float(maxvalue))
+        self.plotUpdate()
     
     def moveTau(self):
         pass
