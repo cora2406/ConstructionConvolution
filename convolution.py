@@ -61,7 +61,7 @@ class Convolution:
         return [self.rangeH, self.h]
     
     def getConvolution(self):
-        self.result = np.convolve(self.x, self.h)
+        self.result = np.convolve(self.x, self.h)*self.step
         self.convolveRange = np.linspace(self.minrangeX, self.minrangeX+(self.result.size*self.step), num=self.result.size)
         return [self.convolveRange, self.result]
 
@@ -98,3 +98,11 @@ class Convolution:
         
     def setTau(self, tau):
         self.tau = tau
+        
+    def createEchos(self):
+        numberOfEchos = np.floor((self.tau-self.minrangeX)/(self.step*100))
+        self.echos = [self.tau - echo*(self.step*100) for echo in np.arange(0,numberOfEchos)]
+        print(self.echos)
+        return self.echos
+        
+        

@@ -207,6 +207,9 @@ class App(QWidget):
         ax.axvline(x=tau, color='red')
         ax.plot(dataX[0], dataX[1], color='blue')
         ax.plot((dataH[0]-dataH[0][0]+tau), dataH[1], color='green')
+        for i, echo in enumerate(self.convolution.createEchos()):
+            ax.plot((dataH[0]-dataH[0][0]+tau-echo), dataX[1][i*100] * dataH[1], color='green', alpha = 0.5)
+            
         ax.set_title("Translation de h(t) en un point")
         self.canvasProducts.draw()
         
