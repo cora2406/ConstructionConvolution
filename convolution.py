@@ -27,6 +27,7 @@ class Convolution:
         self.minrange = 0
         self.maxrange = 10
         self.points = 1000
+        self.tau = 1
         self.step = (self.maxrange - self.minrange)/self.points
         self.range = np.linspace(self.minrange, self.maxrange, self.points)
         
@@ -38,6 +39,9 @@ class Convolution:
     
     def getStep(self):
         return self.step
+    
+    def getTau(self):
+        return self.tau
         
     def getXfunction(self):
         self.x = np.sin(self.range*np.pi)
@@ -65,3 +69,6 @@ class Convolution:
         self.minrange = newmin
         self.maxrange = newmax
         self.range = np.linspace(self.minrange, self.maxrange, self.points)
+        
+    def setTau(self, tau):
+        self.tau = tau

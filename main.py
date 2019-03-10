@@ -138,6 +138,7 @@ class App(QWidget):
     def plotDefaults(self):
         
         self.convolution.setRange(0, 10)
+        self.convolution.setTau(1)
         self.tminInput.clear()
         self.tmaxInput.clear()
         self.XFunctionInput.clear()
@@ -145,25 +146,30 @@ class App(QWidget):
 
         self.figureX.clear()
         ax = self.figureX.add_subplot(111)
-        data = self.convolution.getXfunction()
-        ax.plot(data[0], data[1])
+        dataX = self.convolution.getXfunction()
+        ax.plot(dataX[0], dataX[1])
         ax.set_title("x(t)")
         self.canvasX.draw()
 
         self.figureH.clear()
         ax = self.figureH.add_subplot(111)
-        data = self.convolution.getHfunction()
-        ax.plot(data[0], data[1])
+        dataH = self.convolution.getHfunction()
+        ax.plot(dataH[0], dataH[1])
         ax.set_title("h(t)")
         self.canvasH.draw()
         
         self.figureRelative.clear()
         ax = self.figureRelative.add_subplot(111)
+        tau = self.convolution.getTau()
+        ax.plot(dataX[0], dataX[1], color='blue')
+        ax.plot(dataH[0]+tau, dataH[1], color='green')
+        ax.axvline(x=tau, color='red')
         ax.set_title("Positions relatives de x(t) et h(t)")
         self.canvasRelative.draw()
         
         self.figureProducts.clear()
         ax = self.figureProducts.add_subplot(111)
+        ax.axvline(x=tau, color='red')
         ax.set_title("Translation de h(t) en un point")
         self.canvasProducts.draw()
         
@@ -181,20 +187,24 @@ class App(QWidget):
     def plotUpdate(self):
         self.figureX.clear()
         ax = self.figureX.add_subplot(111)
-        data = self.convolution.getXfunction()
-        ax.plot(data[0], data[1])
+        dataX = self.convolution.getXfunction()
+        ax.plot(dataX[0], dataX[1])
         ax.set_title("x(t)")
         self.canvasX.draw()
 
         self.figureH.clear()
         ax = self.figureH.add_subplot(111)
-        data = self.convolution.getHfunction()
-        ax.plot(data[0], data[1])
+        dataH = self.convolution.getHfunction()
+        ax.plot(dataH[0], dataH[1])
         ax.set_title("h(t)")
         self.canvasH.draw()
         
         self.figureRelative.clear()
         ax = self.figureRelative.add_subplot(111)
+        tau = self.convolution.getTau()
+        ax.plot(dataX[0], dataX[1], color='blue')
+        ax.plot(dataH[0]+tau, dataH[1], color='green')
+        ax.axvline(x=tau, color='red')
         ax.set_title("Positions relatives de x(t) et h(t)")
         self.canvasRelative.draw()
         
