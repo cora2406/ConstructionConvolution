@@ -77,10 +77,14 @@ class App(QWidget):
         
         self.sliderLabel = QLabel("Selection de tau")
         self.sliderLabel.setAlignment(Qt.AlignCenter)
-        self.tminLabel = QLabel("Valeur minimum de t")
-        self.tminLabel.setAlignment(Qt.AlignRight)
-        self.tmaxLabel = QLabel("Valeur maximum de t")
-        self.tmaxLabel.setAlignment(Qt.AlignRight)
+        self.tminXLabel = QLabel("Valeur minimum de t pout x(t)")
+        self.tminXLabel.setAlignment(Qt.AlignRight)
+        self.tmaxXLabel = QLabel("Valeur maximum de t pour x(t)")
+        self.tmaxXLabel.setAlignment(Qt.AlignRight)
+        self.tminHLabel = QLabel("Valeur minimum de t pour h(t)")
+        self.tminHLabel.setAlignment(Qt.AlignRight)
+        self.tmaxHLabel = QLabel("Valeur maximum de t pour h(t)")
+        self.tmaxHLabel.setAlignment(Qt.AlignRight)
         self.XFunctionLabel = QLabel("Fonction x(t)")
         self.XFunctionLabel.setAlignment(Qt.AlignRight)
         self.HFunctionLabel = QLabel("Fonction h(t)")
@@ -95,13 +99,21 @@ class App(QWidget):
         self.slider.valueChanged.connect(self.moveTau) 
         self.slider.setTickPosition(QSlider.TicksBelow)
         
-        self.tminInput = QLineEdit()
-        self.tminInput.setValidator(QDoubleValidator())
-        self.tminInput.textChanged.connect(self.updateMinRange)
+        self.tminXInput = QLineEdit()
+        self.tminXInput.setValidator(QDoubleValidator())
+        self.tminXInput.textChanged.connect(self.updateMinRangeX)
         
-        self.tmaxInput = QLineEdit()
-        self.tmaxInput.setValidator(QDoubleValidator())
-        self.tmaxInput.textChanged.connect(self.updateMaxRange)
+        self.tmaxXInput = QLineEdit()
+        self.tmaxXInput.setValidator(QDoubleValidator())
+        self.tmaxXInput.textChanged.connect(self.updateMaxRangeX)
+        
+        self.tminHInput = QLineEdit()
+        self.tminHInput.setValidator(QDoubleValidator())
+        self.tminHInput.textChanged.connect(self.updateMinRangeH)
+        
+        self.tmaxHInput = QLineEdit()
+        self.tmaxHInput.setValidator(QDoubleValidator())
+        self.tmaxHInput.textChanged.connect(self.updateMaxRangeH)
         
         self.XFunctionInput = QLineEdit()
         self.HFunctionInput = QLineEdit()
@@ -112,35 +124,44 @@ class App(QWidget):
         self.horizontalGroupBox = QGroupBox("Grid")
         layout = QGridLayout()
         layout.setColumnStretch(0, 100)
-        layout.setColumnStretch(1, 100)
-        layout.setColumnStretch(2, 300)
-        layout.addWidget(self.canvasX, 0, 0)
-        layout.addWidget(self.canvasH, 0, 1)
-        layout.addWidget(self.canvasRelative, 1, 0, 1, 2)
-        layout.addWidget(self.canvasProducts, 0, 2, 2, 1)
-        layout.addWidget(self.canvasResult, 2, 2, 9, 1)
-        layout.addWidget(self.sliderLabel, 2, 0, 1, 2)
-        layout.addWidget(self.slider, 3, 0, 1, 2)
-        layout.addWidget(self.buttonReset, 5,0)
-        layout.addWidget(self.buttonUpdate, 5,1)
-        layout.addWidget(self.tminInput, 6,1)
-        layout.addWidget(self.tmaxInput, 7,1)
-        layout.addWidget(self.XFunctionInput, 8,1)
-        layout.addWidget(self.HFunctionInput, 9,1)
-        layout.addWidget(self.tminLabel, 6,0)
-        layout.addWidget(self.tmaxLabel, 7,0)
-        layout.addWidget(self.XFunctionLabel, 8,0)
-        layout.addWidget(self.HFunctionLabel, 9,0)
-        layout.addWidget(self.MessageLabel, 10,0, 1, 2)
+        layout.setColumnStretch(2, 100)
+        layout.setColumnStretch(4, 500)
+        layout.addWidget(self.canvasX, 0, 0, 1, 2)
+        layout.addWidget(self.canvasH, 0, 2, 1, 2)
+        layout.addWidget(self.canvasRelative, 1, 0, 1, 4)
+        layout.addWidget(self.canvasProducts, 0, 4, 2, 1)
+        layout.addWidget(self.canvasResult, 2, 4, 9, 1)
+        layout.addWidget(self.sliderLabel, 2, 0, 1, 4)
+        layout.addWidget(self.slider, 3, 0, 1, 4)
+        layout.addWidget(self.buttonReset, 5, 0)
+        layout.addWidget(self.buttonUpdate, 5, 1)
+        
+        layout.addWidget(self.tminXLabel, 6,0)
+        layout.addWidget(self.tmaxXLabel, 7,0)
+        layout.addWidget(self.tminXInput, 6,1)
+        layout.addWidget(self.tmaxXInput, 7,1)
+        
+        layout.addWidget(self.tminHLabel, 6,2)
+        layout.addWidget(self.tmaxHLabel, 7,2)
+        layout.addWidget(self.tminHInput, 6,3)
+        layout.addWidget(self.tmaxHInput, 7,3)
+        
+        layout.addWidget(self.XFunctionInput, 8,2,1,2)
+        layout.addWidget(self.HFunctionInput, 9,2,1,2)
+        layout.addWidget(self.XFunctionLabel, 8,0,1,2)
+        layout.addWidget(self.HFunctionLabel, 9,0, 1,2 )
+        layout.addWidget(self.MessageLabel, 10,0, 1, 4)
         
         self.setLayout(layout)
 
     def plotDefaults(self):
         
-        self.convolution.setRange(0, 10)
+        self.convolution.setRangeX(0, 10)
         self.convolution.setTau(1)
-        self.tminInput.clear()
-        self.tmaxInput.clear()
+        self.tminXInput.clear()
+        self.tmaxXInput.clear()
+        self.tminHInput.clear()
+        self.tmaxHInput.clear()
         self.XFunctionInput.clear()
         self.HFunctionInput.clear()
 
@@ -180,9 +201,13 @@ class App(QWidget):
         ax.plot(data[0], data[1])
         self.canvasResult.draw()
         
-        self.slider.setTickPosition(self.convolution.getMinRange())
+        self.updateSlider()
+        
+    def updateSlider(self):
+        self.slider.setMinimum(self.convolution.getMinRangeX())
+        self.slider.setMaximum(self.convolution.getMaxRangeX())
         self.slider.setTickInterval(self.convolution.getStep())
-        self.slider.setSingleStep((self.convolution.getMaxRange()-self.convolution.getMinRange())/100)
+        self.slider.setSingleStep((self.convolution.getMaxRangeX()-self.convolution.getMinRangeX())/100)
         
     def plotUpdate(self):
         self.figureX.clear()
@@ -219,17 +244,32 @@ class App(QWidget):
         data = self.convolution.getConvolution()
         ax.plot(data[0], data[1])
         self.canvasResult.draw()
-    
-    def updateMinRange(self, minvalue):
-        self.convolution.setMinRange(float(minvalue))
-        self.plotUpdate()
         
-    def updateMaxRange(self, maxvalue):
-        self.convolution.setMaxRange(float(maxvalue))
+    
+    def updateMinRangeX(self, minvalue):
+        self.convolution.setMinRangeX(float(minvalue))
         self.plotUpdate()
+        self.updateSlider()
+        
+    def updateMaxRangeX(self, maxvalue):
+        self.convolution.setMaxRangeX(float(maxvalue))
+        self.plotUpdate()
+        self.updateSlider()
+        
+    def updateMinRangeH(self, minvalue):
+        self.convolution.setMinRangeH(float(minvalue))
+        self.plotUpdate()
+        self.updateSlider()
+        
+    def updateMaxRangeH(self, maxvalue):
+        self.convolution.setMaxRangeH(float(maxvalue))
+        self.plotUpdate()
+        self.updateSlider()
     
     def moveTau(self):
-        pass
+        tau = self.slider.value()
+        self.convolution.setTau(tau)
+        self.plotUpdate()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

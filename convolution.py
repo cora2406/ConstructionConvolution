@@ -24,18 +24,27 @@ __status__ = "Prototype"
 
 class Convolution:
     def __init__(self):
-        self.minrange = 0
-        self.maxrange = 10
-        self.points = 1000
+        self.minrangeX = 0
+        self.maxrangeX = 10
+        self.minrangeH = 0
+        self.maxrangeH = 10
         self.tau = 1
-        self.step = (self.maxrange - self.minrange)/self.points
-        self.range = np.linspace(self.minrange, self.maxrange, self.points)
+        self.points = 1000;
+        self.step = (self.maxrangeX - self.minrangeX)/self.points
+        self.rangeX = np.arange(self.minrangeX, self.maxrangeX, self.step)
+        self.rangeH = np.arange(self.minrangeH, self.maxrangeH, self.step)
         
-    def getMinRange(self):
-        return self.minrange
+    def getMinRangeX(self):
+        return self.minrangeX
     
-    def getMaxRange(self):
-        return self.maxrange
+    def getMinRangeH(self):
+        return self.minrangeH
+    
+    def getMaxRangeX(self):
+        return self.maxrangeX
+    
+    def getMaxRangeH(self):
+        return self.maxrangeH
     
     def getStep(self):
         return self.step
@@ -44,31 +53,48 @@ class Convolution:
         return self.tau
         
     def getXfunction(self):
-        self.x = np.sin(self.range*np.pi)
-        return [self.range, self.x]
+        self.x = np.sin(self.rangeX*np.pi)
+        return [self.rangeX, self.x]
     
     def getHfunction(self):
-        self.h = np.exp(-self.range)
-        return [self.range, self.h]
+        self.h = np.exp(-self.rangeH)
+        return [self.rangeH, self.h]
     
     def getConvolution(self):
         self.result = np.convolve(self.x, self.h)
-        self.convolveRange = np.linspace(self.minrange, self.minrange+(self.result.size*self.step), num=self.result.size)
+        self.convolveRange = np.linspace(self.minrangeX, self.minrangeX+(self.result.size*self.step), num=self.result.size)
         return [self.convolveRange, self.result]
 
 
-    def setMinRange(self, newmin):
-        self.minrange = newmin
-        self.range = np.linspace(self.minrange, self.maxrange, self.points)
-    
-    def setMaxRange(self, newmax):
-        self.maxrange = newmax
-        self.range = np.linspace(self.minrange, self.maxrange, self.points)
+    def setMinRangeX(self, newmin):
+        self.minrangeX = newmin
+        self.step = (self.maxrangeX - self.minrangeX)/self.points
+        self.rangeX = np.arange(self.minrangeX, self.maxrangeX, self.step)
         
-    def setRange(self, newmin, newmax):
-        self.minrange = newmin
-        self.maxrange = newmax
-        self.range = np.linspace(self.minrange, self.maxrange, self.points)
+    def setMinRangeH(self, newmin):
+        self.minrangeH = newmin
+        self.rangeH = np.arange(self.minrangeH, self.maxrangeH, self.step)
+    
+    def setMaxRangeX(self, newmax):
+        self.maxrangeX = newmax
+        self.step = (self.maxrangeX - self.minrangeX)/self.points
+        self.rangeX = np.arange(self.minrangeX, self.maxrangeX, self.step)
+        
+    def setMaxRangeH(self, newmax):
+        self.maxrangeH = newmax
+        self.rangeH = np.arange(self.minrangeH, self.maxrangeH, self.step)
+        
+    def setRangeX(self, newmin, newmax):
+        self.minrangeX = newmin
+        self.maxrangeX = newmax
+        self.step = (self.maxrangeX - self.minrangeX)/self.points
+        self.rangeX = np.arange(self.minrangeX, self.maxrangeX, self.step)
+        
+    def setRangeH(self, newmin, newmax):
+        self.minrangeH = newmin
+        self.maxrangeH = newmax
+        self.step = (self.maxrangeH - self.minrangeH)/self.points
+        self.rangeH = np.arange(self.minrangeH, self.maxrangeH, self.step)
         
     def setTau(self, tau):
         self.tau = tau
