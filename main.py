@@ -13,7 +13,7 @@ License : GPL 3
 
 import sys
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGroupBox, QGridLayout, QSlider, QLabel
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGroupBox, QGridLayout, QSlider, QLabel, QLineEdit
 from PyQt5.QtCore import Qt
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -74,10 +74,28 @@ class App(QWidget):
         
         self.sliderLabel = QLabel("Selection de tau")
         self.sliderLabel.setAlignment(Qt.AlignCenter)
+        self.tminLabel = QLabel("Valeur minimum de t")
+        self.tminLabel.setAlignment(Qt.AlignRight)
+        self.tmaxLabel = QLabel("Valeur maximum de t")
+        self.tmaxLabel.setAlignment(Qt.AlignRight)
+        self.XFunctionLabel = QLabel("Fonction x(t)")
+        self.XFunctionLabel.setAlignment(Qt.AlignRight)
+        self.HFunctionLabel = QLabel("Fonction h(t)")
+        self.HFunctionLabel.setAlignment(Qt.AlignRight)
+        self.MessageLabel = QLabel("Les fonctions doivent être entrées avec" + 
+                                   " la syntaxe Python. Numpy est disponible" +
+                                   " sous le raccourci \"np\".")
+        self.MessageLabel.setAlignment(Qt.AlignCenter)
+        
         
         self.slider = QSlider(Qt.Horizontal)
         self.slider.valueChanged.connect(self.moveTau) 
         self.slider.setTickPosition(QSlider.TicksBelow)
+        
+        self.tminInput = QLineEdit()
+        self.tmaxInput = QLineEdit()
+        self.XFunctionInput = QLineEdit()
+        self.HFunctionInput = QLineEdit()
         
         
     def createGridLayout(self):
@@ -91,11 +109,21 @@ class App(QWidget):
         layout.addWidget(self.canvasH, 0, 1)
         layout.addWidget(self.canvasRelative, 1, 0, 1, 2)
         layout.addWidget(self.canvasProducts, 0, 2, 2, 1)
-        layout.addWidget(self.canvasResult, 2, 2, 3, 1)
+        layout.addWidget(self.canvasResult, 2, 2, 9, 1)
         layout.addWidget(self.sliderLabel, 2, 0, 1, 2)
         layout.addWidget(self.slider, 3, 0, 1, 2)
-        layout.addWidget(self.buttonReset, 4,0)
-        layout.addWidget(self.buttonUpdate, 4,1)
+        layout.addWidget(self.buttonReset, 5,0)
+        layout.addWidget(self.buttonUpdate, 5,1)
+        layout.addWidget(self.tminInput, 6,1)
+        layout.addWidget(self.tmaxInput, 7,1)
+        layout.addWidget(self.XFunctionInput, 8,1)
+        layout.addWidget(self.HFunctionInput, 9,1)
+        layout.addWidget(self.tminLabel, 6,0)
+        layout.addWidget(self.tmaxLabel, 7,0)
+        layout.addWidget(self.XFunctionLabel, 8,0)
+        layout.addWidget(self.HFunctionLabel, 9,0)
+        layout.addWidget(self.MessageLabel, 10,0, 1, 2)
+        
         self.setLayout(layout)
 
     def plotDefaults(self):
