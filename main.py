@@ -77,7 +77,7 @@ class App(QWidget):
         self.buttonUpdate = QPushButton('Mettre à jour les graphiques')
         self.buttonUpdate.clicked.connect(self.plotUpdate)
         
-        self.sliderLabel = QLabel("Selection de tau")
+        self.sliderLabel = QLabel("Selection du point t à évaluer")
         self.sliderLabel.setAlignment(Qt.AlignCenter)
         self.tminXLabel = QLabel("Valeur minimum de t pout x(t)")
         self.tminXLabel.setAlignment(Qt.AlignRight)
@@ -167,41 +167,7 @@ class App(QWidget):
         self.XFunctionInput.clear()
         self.HFunctionInput.clear()
 
-        self.figureX.clear()
-        ax = self.figureX.add_subplot(111)
-        dataX = self.convolution.getXfunction()
-        ax.plot(dataX[0], dataX[1])
-        ax.set_title("x(t)")
-        self.canvasX.draw()
-
-        self.figureH.clear()
-        ax = self.figureH.add_subplot(111)
-        dataH = self.convolution.getHfunction()
-        ax.plot(dataH[0], dataH[1])
-        ax.set_title("h(t)")
-        self.canvasH.draw()
-        
-        self.figureRelative.clear()
-        ax = self.figureRelative.add_subplot(111)
-        tau = self.convolution.getTau()
-        ax.plot(dataX[0], dataX[1], color='blue')
-        ax.plot((dataH[0]-dataH[0][0]+tau), dataH[1], color='green')
-        ax.axvline(x=tau, color='red')
-        ax.set_title("Positions relatives de x(t) et h(t)")
-        self.canvasRelative.draw()
-        
-        self.figureProducts.clear()
-        ax = self.figureProducts.add_subplot(111)
-        ax.axvline(x=tau, color='red')
-        ax.set_title("Translation de h(t) en un point")
-        self.canvasProducts.draw()
-        
-        self.figureResult.clear()
-        ax = self.figureResult.add_subplot(111)
-        ax.set_title("Convolution x(t) et h(t)")
-        data = self.convolution.getConvolution()
-        ax.plot(data[0], data[1])
-        self.canvasResult.draw()
+        self.plotUpdate()
         
         self.updateSlider()
         
@@ -230,13 +196,17 @@ class App(QWidget):
         ax = self.figureRelative.add_subplot(111)
         tau = self.convolution.getTau()
         ax.plot(dataX[0], dataX[1], color='blue')
-        ax.plot((dataH[0]-dataH[0][0]+tau), dataH[1], color='green')
         ax.axvline(x=tau, color='red')
+        ax.plot((dataH[0]-dataH[0][0]+tau), dataH[1], color='green')
+        ax.text(0.9, 0.9, 't = {}'.format(tau), transform=ax.transAxes, fontsize='large')
         ax.set_title("Positions relatives de x(t) et h(t)")
         self.canvasRelative.draw()
         
         self.figureProducts.clear()
         ax = self.figureProducts.add_subplot(111)
+        ax.axvline(x=tau, color='red')
+        ax.plot(dataX[0], dataX[1], color='blue')
+        ax.plot((dataH[0]-dataH[0][0]+tau), dataH[1], color='green')
         ax.set_title("Translation de h(t) en un point")
         self.canvasProducts.draw()
         
@@ -245,6 +215,7 @@ class App(QWidget):
         ax.set_title("Convolution x(t) et h(t)")
         data = self.convolution.getConvolution()
         ax.plot(data[0], data[1])
+        ax.axvline(x=tau, color='red')
         self.canvasResult.draw()
         
     

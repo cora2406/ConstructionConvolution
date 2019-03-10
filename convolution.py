@@ -53,7 +53,7 @@ class Convolution:
         return self.tau
         
     def getXfunction(self):
-        self.x = np.sin(self.rangeX*np.pi)
+        self.x = np.hstack((np.zeros(200), np.ones(300), np.zeros(500)))
         return [self.rangeX, self.x]
     
     def getHfunction(self):
