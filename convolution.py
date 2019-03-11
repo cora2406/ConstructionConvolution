@@ -31,7 +31,7 @@ class Convolution:
         self.tau = 1
         self.points = 1000;
         self.step = (self.maxrangeX - self.minrangeX)/self.points
-        self.echoPoints = int(self.points/20)
+        self.echoPoints = int(self.points/50)
         self.rangeX = np.arange(self.minrangeX, self.maxrangeX, self.step)
         self.rangeH = np.arange(self.minrangeH, self.maxrangeH, self.step)
         
@@ -63,6 +63,13 @@ class Convolution:
     def getHfunction(self):
         self.h = np.exp(-self.rangeH)
         return [self.rangeH, self.h]
+    
+    def getHindex(self, t):
+        try:
+            index = (np.nonzero(t < self.rangeH)[0][0])
+        except IndexError:
+            return 0            
+        return index
     
     def getConvolution(self):
         self.result = np.convolve(self.x, self.h)*self.step
@@ -106,7 +113,6 @@ class Convolution:
     def createEchos(self):
         numberOfEchos = np.floor((self.tau-self.minrangeX)/(self.step*self.echoPoints))
         self.echos = [self.tau - echo*(self.step*self.echoPoints) for echo in np.arange(0,numberOfEchos)]
-        print(echos)
         return self.echos
         
         

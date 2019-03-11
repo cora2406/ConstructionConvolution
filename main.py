@@ -207,11 +207,25 @@ class App(QWidget):
         ax.axvline(x=tau, color='red')
         ax.plot(dataX[0], dataX[1], color='blue')
         ax.plot((dataH[0]-dataH[0][0]+tau), dataH[1], color='green')
-        tauindex = int((tau/self.convolution.getStep()))
+        tauindex = int(((tau-self.convolution.getMinRangeX())/self.convolution.getStep()))
+        ax.text(0.7, 0.95, r'$\Delta\tau=$ {0:5.4f}'.format(self.convolution.getEchoPoints()*self.convolution.getStep()), transform=ax.transAxes, fontsize='large')
+        textincrement = 0
+        total=dataH[1][0]*dataX[1][tauindex]*self.convolution.getEchoPoints()*self.convolution.getStep()
+        ax.scatter(tau, dataX[1][tauindex], marker='x')
         for i, echo in enumerate(self.convolution.createEchos()):
-            ax.plot((dataH[0]-dataH[0][0]+tau-echo), dataX[1][i*(self.convolution.getEchoPoints())] * dataH[1], alpha = 0.5)
-            intersection = dataX[1][i*(self.convolution.getEchoPoints())]*dataH[1][tauindex-i*(self.convolution.getEchoPoints())]
-            ax.scatter(tau, intersection)
+            intersection = (dataX[1][i*(self.convolution.getEchoPoints())]*
+                            dataH[1][self.convolution.getHindex(echo-self.convolution.getMinRangeX()+self.convolution.getMinRangeH())])
+            if intersection>0:
+                tOffset = dataH[0][0]-tau+echo-self.convolution.getMinRangeX()
+                line, = ax.plot((dataH[0]-tOffset), dataX[1][i*(self.convolution.getEchoPoints())] * dataH[1], alpha = 0.5)
+                ax.scatter(tau, intersection, color=line.get_color())
+                ax.text(0.7, 0.9-textincrement*0.05, 
+                        r'$x(t-\tau_{{{0}}})h(\tau_{{{0}}}) =$ {1:5.4f}'.format(textincrement+1, intersection), 
+                        transform=ax.transAxes, fontsize='large', color=line.get_color())
+                textincrement+=1
+                total += intersection*self.convolution.getEchoPoints()*self.convolution.getStep()
+                
+        ax.text(0.7, 0.1, r"$\sum{{x(t-\tau_{{n}})\cdot h(\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large')
         ax.set_title("Translation de h(t) en un point")
         self.canvasProducts.draw()
         
