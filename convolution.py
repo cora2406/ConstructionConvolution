@@ -68,7 +68,7 @@ class Convolution:
         try:
             index = (np.nonzero(t < self.rangeH)[0][0])
         except IndexError:
-            return 0            
+            return []          
         return index
     
     def getConvolution(self):

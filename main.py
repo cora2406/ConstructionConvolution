@@ -213,8 +213,12 @@ class App(QWidget):
         total=dataH[1][0]*dataX[1][tauindex]*self.convolution.getEchoPoints()*self.convolution.getStep()
         ax.scatter(tau, dataX[1][tauindex], marker='x')
         for i, echo in enumerate(self.convolution.createEchos()):
-            intersection = (dataX[1][i*(self.convolution.getEchoPoints())]*
-                            dataH[1][self.convolution.getHindex(echo-self.convolution.getMinRangeX()+self.convolution.getMinRangeH())])
+            try:
+                intersection = (dataX[1][i*(self.convolution.getEchoPoints())]*
+                                dataH[1][self.convolution.getHindex(echo-self.convolution.getMinRangeX()+self.convolution.getMinRangeH())])
+            except IndexError:
+                intersection = 0
+                
             if intersection>0:
                 tOffset = dataH[0][0]-tau+echo-self.convolution.getMinRangeX()
                 line, = ax.plot((dataH[0]-tOffset), dataX[1][i*(self.convolution.getEchoPoints())] * dataH[1], alpha = 0.5)
