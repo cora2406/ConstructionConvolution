@@ -106,6 +106,7 @@ class Convolution:
     def createEchos(self):
         numberOfEchos = np.floor((self.tau-self.minrangeX)/(self.step*self.echoPoints))
         self.echos = [self.tau - echo*(self.step*self.echoPoints) for echo in np.arange(0,numberOfEchos)]
+        print(echos)
         return self.echos
         
         
