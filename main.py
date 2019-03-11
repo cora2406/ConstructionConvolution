@@ -208,7 +208,7 @@ class App(QWidget):
         ax.plot(dataX[0], dataX[1], color='blue')
         ax.plot((dataH[0]-dataH[0][0]+tau), dataH[1], color='green')
         for i, echo in enumerate(self.convolution.createEchos()):
-            ax.plot((dataH[0]-dataH[0][0]+tau-echo), dataX[1][i*100] * dataH[1], color='green', alpha = 0.5)
+            ax.plot((dataH[0]-dataH[0][0]+tau-echo), dataX[1][i*(self.convolution.getEchoPoints())] * dataH[1], color='green', alpha = 0.5)
             
         ax.set_title("Translation de h(t) en un point")
         self.canvasProducts.draw()
@@ -219,6 +219,9 @@ class App(QWidget):
         data = self.convolution.getConvolution()
         ax.plot(data[0], data[1])
         ax.axvline(x=tau, color='red')
+        tauindex = int((tau/self.convolution.getStep()))
+        ax.scatter(tau, data[1][tauindex])
+        ax.text(0.8, 0.9, 'x(t) * h(t) = {0:5.4f}'.format(data[1][tauindex]), transform=ax.transAxes, fontsize='large')
         self.canvasResult.draw()
         
     
