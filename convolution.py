@@ -32,7 +32,8 @@ class Convolution:
         self.tau = 1
         self.points = 1000;
         self.step = (self.maxrangeX - self.minrangeX)/self.points
-        self.echoPoints = int(self.points/50)
+        self.echoRate = 1
+        self.echoPoints = int(self.points/self.echoRate)
         self.rangeX = np.arange(self.minrangeX, self.maxrangeX, self.step)
         self.rangeH = np.arange(self.minrangeH, self.maxrangeH, self.step)
         self.XFunctionString = 'hstack((zeros(200), ones(300), zeros(500)))'
@@ -130,6 +131,10 @@ class Convolution:
         
     def setTau(self, tau):
         self.tau = tau
+        
+    def setEchoRate(self, echoRate):
+        self.echoRate = echoRate
+        self.echoPoints = int(self.points/self.echoRate)
         
     def setXFunction(self, stringFunction):
         self.XFunctionString = stringFunction

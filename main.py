@@ -32,7 +32,7 @@ class App(QWidget):
         self.width = 1600
         self.height = 900
         
-        self.sliderFactor = 10
+        self.sliderTimeFactor = 10
         
         self.convolution = Convolution()
         
@@ -77,8 +77,10 @@ class App(QWidget):
         self.buttonUpdate = QPushButton('Mettre à jour les graphiques')
         self.buttonUpdate.clicked.connect(self.plotUpdate)
         
-        self.sliderLabel = QLabel("Selection du point t à évaluer")
-        self.sliderLabel.setAlignment(Qt.AlignCenter)
+        self.sliderTimeLabel = QLabel("Selection du point t à évaluer")
+        self.sliderTimeLabel.setAlignment(Qt.AlignCenter)
+        self.sliderEchoLabel = QLabel("Nombre d'echos")
+        self.sliderEchoLabel.setAlignment(Qt.AlignCenter)
         self.tminXLabel = QLabel("Valeur minimum de t pout x(t)")
         self.tminXLabel.setAlignment(Qt.AlignRight)
         self.tmaxXLabel = QLabel("Valeur maximum de t pour x(t)")
@@ -92,14 +94,21 @@ class App(QWidget):
         self.HFunctionLabel = QLabel("Fonction h(t)")
         self.HFunctionLabel.setAlignment(Qt.AlignRight)
         self.MessageLabel = QLabel("Les fonctions doivent être entrées avec" + 
-                                   " la syntaxe Python. Numpy est disponible" +
-                                   " sous le raccourci \"np\".")
+                                   " la syntaxe Python et la nomenclature Numpy. " +
+                                   "Il y a 1000 points dans le vecteur \"t\".")
         self.MessageLabel.setAlignment(Qt.AlignCenter)
         
         
-        self.slider = QSlider(Qt.Horizontal)
-        self.slider.valueChanged.connect(self.moveTau) 
-        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.sliderTime = QSlider(Qt.Horizontal)
+        self.sliderTime.valueChanged.connect(self.moveTau) 
+        self.sliderTime.setTickPosition(QSlider.TicksBelow)
+        
+        self.sliderEcho = QSlider(Qt.Horizontal)
+        self.sliderEcho.valueChanged.connect(self.changeNumberOfEchos) 
+        self.sliderEcho.setTickPosition(QSlider.TicksBelow)
+        
+        self.sliderEcho.setMinimum(1)
+        self.sliderEcho.setMaximum(300)
         
         self.tminXInput = QLineEdit()
         self.tminXInput.setValidator(QDoubleValidator())
@@ -134,27 +143,29 @@ class App(QWidget):
         layout.addWidget(self.canvasH, 0, 2, 1, 2)
         layout.addWidget(self.canvasRelative, 1, 0, 1, 4)
         layout.addWidget(self.canvasProducts, 0, 4, 2, 1)
-        layout.addWidget(self.canvasResult, 2, 4, 9, 1)
-        layout.addWidget(self.sliderLabel, 2, 0, 1, 4)
-        layout.addWidget(self.slider, 3, 0, 1, 4)
-        layout.addWidget(self.buttonReset, 5, 0)
-        layout.addWidget(self.buttonUpdate, 5, 1)
+        layout.addWidget(self.canvasResult, 2, 4, 10, 1)
+        layout.addWidget(self.sliderTimeLabel, 2, 0, 1, 4)
+        layout.addWidget(self.sliderTime, 3, 0, 1, 4)
+        layout.addWidget(self.sliderEcho, 4, 0, 1, 4)
+        layout.addWidget(self.sliderEcho, 5, 0, 1, 4)
+        layout.addWidget(self.buttonReset, 6, 0)
+        layout.addWidget(self.buttonUpdate, 6, 1)
         
-        layout.addWidget(self.tminXLabel, 6,0)
-        layout.addWidget(self.tmaxXLabel, 7,0)
-        layout.addWidget(self.tminXInput, 6,1)
-        layout.addWidget(self.tmaxXInput, 7,1)
+        layout.addWidget(self.tminXLabel, 7,0)
+        layout.addWidget(self.tmaxXLabel, 8,0)
+        layout.addWidget(self.tminXInput, 7,1)
+        layout.addWidget(self.tmaxXInput, 8,1)
         
-        layout.addWidget(self.tminHLabel, 6,2)
-        layout.addWidget(self.tmaxHLabel, 7,2)
-        layout.addWidget(self.tminHInput, 6,3)
-        layout.addWidget(self.tmaxHInput, 7,3)
+        layout.addWidget(self.tminHLabel, 7,2)
+        layout.addWidget(self.tmaxHLabel, 8,2)
+        layout.addWidget(self.tminHInput, 7,3)
+        layout.addWidget(self.tmaxHInput, 8,3)
         
-        layout.addWidget(self.XFunctionInput, 8,1,1,3)
-        layout.addWidget(self.HFunctionInput, 9,1,1,3)
-        layout.addWidget(self.XFunctionLabel, 8,0,1,1)
-        layout.addWidget(self.HFunctionLabel, 9,0, 1,1)
-        layout.addWidget(self.MessageLabel, 10,0, 1, 4)
+        layout.addWidget(self.XFunctionInput, 9,1,1,3)
+        layout.addWidget(self.HFunctionInput, 10,1,1,3)
+        layout.addWidget(self.XFunctionLabel, 9,0,1,1)
+        layout.addWidget(self.HFunctionLabel, 10,0, 1,1)
+        layout.addWidget(self.MessageLabel, 11,0, 1, 4)
         
         self.setLayout(layout)
 
@@ -173,10 +184,10 @@ class App(QWidget):
         self.updateSlider()
         
     def updateSlider(self):
-        self.slider.setMinimum(self.convolution.getMinRangeX()*self.sliderFactor)
-        self.slider.setMaximum(self.convolution.getMaxRangeX()*self.sliderFactor)
-        #self.slider.setTickInterval(self.convolution.getStep())
-        self.slider.setSingleStep((self.convolution.getMaxRangeX()-self.convolution.getMinRangeX())/100)
+        self.sliderTime.setMinimum(self.convolution.getMinRangeX()*self.sliderTimeFactor)
+        self.sliderTime.setMaximum(self.convolution.getMaxRangeX()*self.sliderTimeFactor)
+        #self.sliderTime.setTickInterval(self.convolution.getStep())
+        self.sliderTime.setSingleStep((self.convolution.getMaxRangeX()-self.convolution.getMinRangeX())/100)
         
     def plotUpdate(self):
         self.figureX.clear()
@@ -224,10 +235,11 @@ class App(QWidget):
                 tOffset = dataH[0][0]-tau+echo-self.convolution.getMinRangeX()
                 line, = ax.plot((dataH[0]-tOffset), dataX[1][i*(self.convolution.getEchoPoints())] * dataH[1], alpha = 0.5)
                 ax.scatter(tau, intersection, color=line.get_color())
-                ax.text(0.7, 0.9-textincrement*0.05, 
-                        r'$x(t-\tau_{{{0}}})h(\tau_{{{0}}}) =$ {1:5.4f}'.format(textincrement+1, intersection), 
-                        transform=ax.transAxes, fontsize='large', color=line.get_color())
-                textincrement+=1
+                if textincrement < 16:
+                    ax.text(0.7, 0.9-textincrement*0.05, 
+                            r'$x(t-\tau_{{{0}}})h(\tau_{{{0}}}) =$ {1:5.4f}'.format(textincrement+1, intersection), 
+                            transform=ax.transAxes, fontsize='large', color=line.get_color())
+                    textincrement+=1
                 total += intersection*self.convolution.getEchoPoints()*self.convolution.getStep()
                 
         ax.text(0.95, 0.1, r"$\sum{{x(t-\tau_{{n}})\cdot h(\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large', ha='right')
@@ -274,8 +286,12 @@ class App(QWidget):
         self.plotUpdate()
     
     def moveTau(self):
-        tau = self.slider.value()/float(self.sliderFactor)
+        tau = self.sliderTime.value()/float(self.sliderTimeFactor)
         self.convolution.setTau(tau)
+        self.plotUpdate()
+        
+    def changeNumberOfEchos(self):
+        self.convolution.setEchoRate(self.sliderEcho.value())
         self.plotUpdate()
 
 if __name__ == '__main__':
