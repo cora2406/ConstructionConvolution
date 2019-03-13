@@ -24,6 +24,7 @@ __status__ = "Prototype"
 
 class Convolution:
     def __init__(self):
+        
         self.minrangeX = 0
         self.maxrangeX = 10
         self.minrangeH = 0
@@ -34,6 +35,24 @@ class Convolution:
         self.echoPoints = int(self.points/50)
         self.rangeX = np.arange(self.minrangeX, self.maxrangeX, self.step)
         self.rangeH = np.arange(self.minrangeH, self.maxrangeH, self.step)
+        self.XFunctionString = 'hstack((zeros(200), ones(300), zeros(500)))'
+        self.HFunctionString = 'exp(-t)'
+        
+        self.makeSafeDict()
+        
+    def makeSafeDict(self):
+        self.safe_dict = {'zeros': np.zeros, 'ones': np.ones, 'hstack':np.hstack,
+                'sin': np.sin, 'cos': np.cos, 'tan': np.tan, 'exp': np.exp,
+                'arcsin': np.arcsin, 'arccos': np.arccos, 'arctan': np.arctan, 'pi': np.pi,
+                'log' : np.log, 'log10' : np.log10, 'power': np.power, 'sqrt' : np.sqrt
+                }
+        #print(self.safe_dict)
+        
+    def getXFunctionString(self):
+        return self.XFunctionString
+    
+    def getHFunctionString(self):
+        return self.XFunctionString
         
     def getMinRangeX(self):
         return self.minrangeX
@@ -57,11 +76,13 @@ class Convolution:
         return self.tau
         
     def getXfunction(self):
-        self.x = np.hstack((np.zeros(200), np.ones(300), np.zeros(500)))
+        self.safe_dict['t'] = self.rangeX
+        self.x = eval(self.XFunctionString, {"__builtins__":None}, self.safe_dict)
         return [self.rangeX, self.x]
     
     def getHfunction(self):
-        self.h = np.exp(-self.rangeH)
+        self.safe_dict['t'] = self.rangeH
+        self.h = eval(self.HFunctionString, {"__builtins__":None}, self.safe_dict)
         return [self.rangeH, self.h]
     
     def getHindex(self, t):
@@ -109,6 +130,12 @@ class Convolution:
         
     def setTau(self, tau):
         self.tau = tau
+        
+    def setXFunction(self, stringFunction):
+        self.XFunctionString = stringFunction
+        
+    def setHFunction(self, stringFunction):
+        self.HFunctionString = stringFunction
         
     def createEchos(self):
         numberOfEchos = np.floor((self.tau-self.minrangeX)/(self.step*self.echoPoints))

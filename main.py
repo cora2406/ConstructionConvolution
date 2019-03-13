@@ -20,7 +20,6 @@ from PyQt5.QtGui import QDoubleValidator
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
-import matplotlib
 
 from convolution import Convolution
 
@@ -119,7 +118,9 @@ class App(QWidget):
         self.tmaxHInput.textChanged.connect(self.updateMaxRangeH)
         
         self.XFunctionInput = QLineEdit()
+        self.XFunctionInput.returnPressed.connect(self.updateXFunction)
         self.HFunctionInput = QLineEdit()
+        self.HFunctionInput.returnPressed.connect(self.updateHFunction)
         
         
     def createGridLayout(self):
@@ -159,8 +160,7 @@ class App(QWidget):
 
     def plotDefaults(self):
         
-        self.convolution.setRangeX(0, 10)
-        self.convolution.setTau(1)
+        self.convolution = Convolution()
         self.tminXInput.clear()
         self.tmaxXInput.clear()
         self.tminHInput.clear()
@@ -264,6 +264,14 @@ class App(QWidget):
         self.convolution.setMaxRangeH(float(maxvalue))
         self.plotUpdate()
         self.updateSlider()
+        
+    def updateXFunction(self):
+        self.convolution.setXFunction(self.XFunctionInput.text())
+        self.plotUpdate()
+        
+    def updateHFunction(self):
+        self.convolution.setHFunction(self.HFunctionInput.text())
+        self.plotUpdate()
     
     def moveTau(self):
         tau = self.slider.value()/float(self.sliderFactor)
