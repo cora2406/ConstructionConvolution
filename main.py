@@ -20,6 +20,7 @@ from PyQt5.QtGui import QDoubleValidator
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
+import matplotlib
 
 from convolution import Convolution
 
@@ -229,7 +230,7 @@ class App(QWidget):
                 textincrement+=1
                 total += intersection*self.convolution.getEchoPoints()*self.convolution.getStep()
                 
-        ax.text(0.7, 0.1, r"$\sum{{x(t-\tau_{{n}})\cdot h(\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large')
+        ax.text(0.95, 0.1, r"$\sum{{x(t-\tau_{{n}})\cdot h(\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large', ha='right')
         ax.set_title("Translation de h(t) en un point")
         self.canvasProducts.draw()
         
@@ -270,6 +271,7 @@ class App(QWidget):
         self.plotUpdate()
 
 if __name__ == '__main__':
+
     app = QApplication(sys.argv)
 
     ex = App()
