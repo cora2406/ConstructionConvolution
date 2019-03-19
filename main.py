@@ -13,7 +13,7 @@ License : GPL 3
 
 import sys
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGroupBox, QGridLayout, QSlider, QLabel, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGroupBox, QGridLayout, QSlider, QLabel, QLineEdit, QRadioButton
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDoubleValidator
 
@@ -33,6 +33,7 @@ class App(QWidget):
         self.height = 900
         
         self.sliderTimeFactor = 10
+        self.modeEcho = True
         
         self.convolution = Convolution()
         
@@ -76,6 +77,11 @@ class App(QWidget):
         self.buttonReset.clicked.connect(self.plotDefaults)
         self.buttonUpdate = QPushButton('Mettre à jour les graphiques')
         self.buttonUpdate.clicked.connect(self.plotUpdate)
+        self.buttonEcho = QRadioButton('Mode echo')
+        self.buttonEcho.clicked.connect(self.setModeEcho)
+        self.buttonReverse = QRadioButton('Mode retourné')
+        self.buttonReverse.clicked.connect(self.setModeReverse)
+        
         
         self.sliderTimeLabel = QLabel("Selection du point t à évaluer")
         self.sliderTimeLabel.setAlignment(Qt.AlignCenter)
@@ -136,9 +142,9 @@ class App(QWidget):
         # set the layout
         self.horizontalGroupBox = QGroupBox("Grid")
         layout = QGridLayout()
-        layout.setColumnStretch(0, 100)
-        layout.setColumnStretch(2, 100)
-        layout.setColumnStretch(4, 500)
+        layout.setColumnStretch(0, 50)
+        layout.setColumnStretch(2, 50)
+        layout.setColumnStretch(4, 1000)
         layout.addWidget(self.canvasX, 0, 0, 1, 2)
         layout.addWidget(self.canvasH, 0, 2, 1, 2)
         layout.addWidget(self.canvasRelative, 1, 0, 1, 4)
@@ -150,6 +156,9 @@ class App(QWidget):
         layout.addWidget(self.sliderEcho, 5, 0, 1, 4)
         layout.addWidget(self.buttonReset, 6, 0)
         layout.addWidget(self.buttonUpdate, 6, 1)
+        
+        layout.addWidget(self.buttonEcho, 6, 2)
+        layout.addWidget(self.buttonReverse, 6, 3)
         
         layout.addWidget(self.tminXLabel, 7,0)
         layout.addWidget(self.tmaxXLabel, 8,0)
@@ -214,7 +223,31 @@ class App(QWidget):
         ax.set_title("Positions relatives de x(t) et h(t)")
         self.canvasRelative.draw()
         
+        
+        tauindex = int(((tau-self.convolution.getMinRangeX())/self.convolution.getStep()))
+        
+        self.figureResult.clear()
+        ax = self.figureResult.add_subplot(111)
+        ax.set_title("Convolution x(t) et h(t)")
+        data = self.convolution.getConvolution()
+        ax.plot(data[0], data[1])
+        ax.axvline(x=tau, color='red')
+        ax.scatter(tau, data[1][tauindex])
+        ax.text(0.8, 0.9, 'x(t) * h(t) = {0:5.4f}'.format(data[1][tauindex]), transform=ax.transAxes, fontsize='large')
+        self.canvasResult.draw()
+        
+        if self.modeEcho == True:
+            self.productPlotWithEchos()
+        else:
+            self.productPlotReverse()
+        
+    def productPlotWithEchos(self):
         self.figureProducts.clear()
+        
+        tau = self.convolution.getTau()
+        dataX = self.convolution.getXfunction()
+        dataH = self.convolution.getHfunction()
+        
         ax = self.figureProducts.add_subplot(111)
         ax.axvline(x=tau, color='red')
         ax.plot(dataX[0], dataX[1], color='blue')
@@ -245,16 +278,46 @@ class App(QWidget):
         ax.text(0.95, 0.1, r"$\sum{{x(t-\tau_{{n}})\cdot h(\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large', ha='right')
         ax.set_title("Translation de h(t) en un point")
         self.canvasProducts.draw()
+    
+    def productPlotReverse(self):
+        self.figureProducts.clear()
+                
+        tau = self.convolution.getTau()
+        dataX = self.convolution.getXfunction()
+        dataH = self.convolution.getHfunction()
         
-        self.figureResult.clear()
-        ax = self.figureResult.add_subplot(111)
-        ax.set_title("Convolution x(t) et h(t)")
-        data = self.convolution.getConvolution()
-        ax.plot(data[0], data[1])
+        ax = self.figureProducts.add_subplot(111)
         ax.axvline(x=tau, color='red')
-        ax.scatter(tau, data[1][tauindex])
-        ax.text(0.8, 0.9, 'x(t) * h(t) = {0:5.4f}'.format(data[1][tauindex]), transform=ax.transAxes, fontsize='large')
-        self.canvasResult.draw()
+        ax.plot(dataX[0], dataX[1], color='blue')
+        ax.plot((-dataH[0]+tau), dataH[1], color='green')
+        tauindex = int(((tau-self.convolution.getMinRangeX())/self.convolution.getStep()))
+        ax.text(0.7, 0.95, r'$\Delta\tau=$ {0:5.4f}'.format(self.convolution.getEchoPoints()*self.convolution.getStep()), transform=ax.transAxes, fontsize='large')
+        textincrement = 0
+        total=dataH[1][0]*dataX[1][tauindex]*self.convolution.getEchoPoints()*self.convolution.getStep()
+        ax.scatter(tau, dataX[1][tauindex], marker='x')
+        for i, echo in enumerate(self.convolution.createEchos()):
+            try:
+                intersection = (dataX[1][i*(self.convolution.getEchoPoints())]*
+                                dataH[1][self.convolution.getHindex(echo-self.convolution.getMinRangeX()+
+                                     self.convolution.getMinRangeH())])
+            except IndexError:
+                intersection = 0
+                
+            if intersection>0:
+                ax.axvline(x=tau-echo)
+                #Find color and apply to scatter and text
+                ax.scatter(tau-echo, intersection)
+                if textincrement < 16:
+                    ax.text(0.7, 0.9-textincrement*0.05, 
+                            r'$x(t-\tau_{{{0}}})h(\tau_{{{0}}}) =$ {1:5.4f}'.format(textincrement+1, intersection), 
+                            transform=ax.transAxes, fontsize='large')
+                    textincrement+=1
+                total += intersection*self.convolution.getEchoPoints()*self.convolution.getStep()
+                
+        ax.text(0.95, 0.1, r"$\sum{{x(tau_{{n}})\cdot h(t-\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large', ha='right')
+        ax.set_title("Translation de h(t) en un point")
+        #SET Axes to fix X
+        self.canvasProducts.draw()
         
     
     def updateMinRangeX(self, minvalue):
@@ -293,6 +356,14 @@ class App(QWidget):
     def changeNumberOfEchos(self):
         self.convolution.setEchoRate(self.sliderEcho.value())
         self.plotUpdate()
+        
+    def setModeEcho(self):
+        self.modeEcho = True
+        self.productPlotWithEchos()
+        
+    def setModeReverse(self):
+        self.modeEcho = False
+        self.productPlotReverse()
 
 if __name__ == '__main__':
 
