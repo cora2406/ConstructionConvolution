@@ -88,7 +88,7 @@ class App(QWidget):
         
         self.sliderTimeLabel = QLabel("Selection du point t à évaluer")
         self.sliderTimeLabel.setAlignment(Qt.AlignCenter)
-        self.sliderEchoLabel = QLabel("Nombre d'echos")
+        self.sliderEchoLabel = QLabel("Nombre de points contribuant à l'évaluation du point t")
         self.sliderEchoLabel.setAlignment(Qt.AlignCenter)
         self.tminXLabel = QLabel("Valeur minimum de t pout x(t)")
         self.tminXLabel.setAlignment(Qt.AlignRight)
@@ -155,7 +155,7 @@ class App(QWidget):
         layout.addWidget(self.canvasResult, 2, 4, 10, 1)
         layout.addWidget(self.sliderTimeLabel, 2, 0, 1, 4)
         layout.addWidget(self.sliderTime, 3, 0, 1, 4)
-        layout.addWidget(self.sliderEcho, 4, 0, 1, 4)
+        layout.addWidget(self.sliderEchoLabel, 4, 0, 1, 4)
         layout.addWidget(self.sliderEcho, 5, 0, 1, 4)
         layout.addWidget(self.buttonReset, 6, 0)
         layout.addWidget(self.buttonUpdate, 6, 1)
@@ -184,16 +184,17 @@ class App(QWidget):
     def plotDefaults(self):
         
         self.convolution = Convolution()
-        self.tminXInput.clear()
-        self.tmaxXInput.clear()
-        self.tminHInput.clear()
-        self.tmaxHInput.clear()
-        self.XFunctionInput.clear()
-        self.HFunctionInput.clear()
 
         self.plotUpdate()
         
         self.updateSlider()
+        
+        self.tminXInput.setText('{}'.format(self.convolution.getMinRangeX()))
+        self.tminHInput.setText('{}'.format(self.convolution.getMinRangeH()))
+        self.tmaxXInput.setText('{}'.format(self.convolution.getMaxRangeX()))
+        self.tmaxHInput.setText('{}'.format(self.convolution.getMaxRangeH()))
+        self.XFunctionInput.setText('{}'.format(self.convolution.getXFunctionString()))
+        self.HFunctionInput.setText('{}'.format(self.convolution.getHFunctionString()))
         
     def updateSlider(self):
         self.sliderTime.setMinimum(self.convolution.getMinRangeX()*self.sliderTimeFactor)

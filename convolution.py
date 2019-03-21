@@ -55,7 +55,7 @@ class Convolution:
         return self.XFunctionString
     
     def getHFunctionString(self):
-        return self.XFunctionString
+        return self.HFunctionString
         
     def getMinRangeX(self):
         return self.minrangeX
