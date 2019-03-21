@@ -20,6 +20,8 @@ from PyQt5.QtGui import QDoubleValidator
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
+from numpy import max as npmax
+from numpy import min as npmin
 
 from convolution import Convolution
 
@@ -78,6 +80,7 @@ class App(QWidget):
         self.buttonUpdate = QPushButton('Mettre à jour les graphiques')
         self.buttonUpdate.clicked.connect(self.plotUpdate)
         self.buttonEcho = QRadioButton('Mode echo')
+        self.buttonEcho.setChecked(True)
         self.buttonEcho.clicked.connect(self.setModeEcho)
         self.buttonReverse = QRadioButton('Mode retourné')
         self.buttonReverse.clicked.connect(self.setModeReverse)
@@ -277,6 +280,10 @@ class App(QWidget):
                 
         ax.text(0.95, 0.1, r"$\sum{{x(t-\tau_{{n}})\cdot h(\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large', ha='right')
         ax.set_title("Translation de h(t) en un point")
+        minVert = npmin([dataX[1], dataH[1]])
+        maxVert = npmax([dataX[1], dataH[1]])
+        adjust = (maxVert-minVert)*0.1
+        plt.axis([dataX[0][0], dataX[0][-1], minVert-adjust, maxVert+adjust])
         self.canvasProducts.draw()
     
     def productPlotReverse(self):
@@ -304,19 +311,24 @@ class App(QWidget):
                 intersection = 0
                 
             if intersection>0:
-                ax.axvline(x=tau-echo)
+                xposition = tau-echo+self.convolution.getMinRangeH()+self.convolution.getMinRangeX()
+                line, = ax.plot([xposition, xposition], [0, intersection])
                 #Find color and apply to scatter and text
-                ax.scatter(tau-echo, intersection)
+                ax.scatter(xposition, intersection, color=line.get_color())
                 if textincrement < 16:
                     ax.text(0.7, 0.9-textincrement*0.05, 
                             r'$x(t-\tau_{{{0}}})h(\tau_{{{0}}}) =$ {1:5.4f}'.format(textincrement+1, intersection), 
-                            transform=ax.transAxes, fontsize='large')
+                            transform=ax.transAxes, fontsize='large', color=line.get_color())
                     textincrement+=1
                 total += intersection*self.convolution.getEchoPoints()*self.convolution.getStep()
                 
         ax.text(0.95, 0.1, r"$\sum{{x(tau_{{n}})\cdot h(t-\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large', ha='right')
         ax.set_title("Translation de h(t) en un point")
         #SET Axes to fix X
+        minVert = npmin([dataX[1], dataH[1]])
+        maxVert = npmax([dataX[1], dataH[1]])
+        adjust = (maxVert-minVert)*0.1
+        plt.axis([dataX[0][0], dataX[0][-1], minVert-adjust, maxVert+adjust])
         self.canvasProducts.draw()
         
     
