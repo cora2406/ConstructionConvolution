@@ -296,7 +296,7 @@ class App(QWidget):
         ax = self.figureProducts.add_subplot(111)
         ax.axvline(x=tau, color='red')
         ax.plot(dataX[0], dataX[1], color='blue')
-        ax.plot((-dataH[0]+tau), dataH[1], color='green')
+        ax.plot(-(dataH[0]-dataH[0][0])+tau, dataH[1], color='green')
         tauindex = int(((tau-self.convolution.getMinRangeX())/self.convolution.getStep()))
         ax.text(0.7, 0.95, r'$\Delta\tau=$ {0:5.4f}'.format(self.convolution.getEchoPoints()*self.convolution.getStep()), transform=ax.transAxes, fontsize='large')
         textincrement = 0
@@ -311,7 +311,7 @@ class App(QWidget):
                 intersection = 0
                 
             if intersection>0:
-                xposition = tau-echo+self.convolution.getMinRangeH()+self.convolution.getMinRangeX()
+                xposition = tau-echo+self.convolution.getMinRangeX()
                 line, = ax.plot([xposition, xposition], [0, intersection])
                 #Find color and apply to scatter and text
                 ax.scatter(xposition, intersection, color=line.get_color())
@@ -322,7 +322,7 @@ class App(QWidget):
                     textincrement+=1
                 total += intersection*self.convolution.getEchoPoints()*self.convolution.getStep()
                 
-        ax.text(0.95, 0.1, r"$\sum{{x(tau_{{n}})\cdot h(t-\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large', ha='right')
+        ax.text(0.95, 0.1, r"$\sum{{x(\tau_{{n}})\cdot h(t-\tau_{{n}})\cdot\Delta\tau}}=${0:5.2f}".format(total), transform=ax.transAxes, fontsize='x-large', ha='right')
         ax.set_title("Translation de h(t) en un point")
         #SET Axes to fix X
         minVert = npmin([dataX[1], dataH[1]])
